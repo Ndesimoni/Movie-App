@@ -131,7 +131,6 @@ function NumResults({ movies }) {
 // this is the main component box
 function Main({ children }) {
   const [watched, setWatched] = useState(tempWatchedData);
-  const [isOpen2, setIsOpen2] = useState(true);
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
