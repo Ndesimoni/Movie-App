@@ -50,10 +50,19 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+// const KEY = " 336f9606";
+
+// const KEY = "f84fc31d";
+
 // this is the main app  component
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
+
+  // fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=vikings`)
+  //   .then((res) => res.json())
+  //   .then((data) => setMovies(data.Search))
+  //   .catch((err) => console.log(err.message));
 
   return (
     <>
@@ -185,35 +194,6 @@ function Movie({ movie }) {
   );
 }
 
-// this is the watch box
-// function WatchedBox() {
-//   const [watched, setWatched] = useState(tempWatchedData);
-//   const [isOpen2, setIsOpen2] = useState(true);
-
-// const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
-// const avgUserRating = average(watched.map((movie) => movie.userRating));
-// const avgRuntime = average(watched.map((movie) => movie.runtime));
-
-//   return (
-//     <>
-//       <div className="box">
-//         <button
-//           className="btn-toggle"
-//           onClick={() => setIsOpen2((open) => !open)}
-//         >
-//           {isOpen2 ? "–" : "+"}
-//         </button>
-//         {isOpen2 && (
-//           <>
-//             <WatchedSummary watched={watched} />
-//             <WatchedMovieList watched={watched} />
-//           </>
-//         )}
-//       </div>
-//     </>
-//   );
-// }
-
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -265,7 +245,7 @@ function WatchedMovie({ movie }) {
           <span>{movie.imdbRating}</span>
         </p>
         <p>
-          <span>🌟</span>
+          <span>🌟</span>cd
           <span>{movie.userRating}</span>
         </p>
         <p>
