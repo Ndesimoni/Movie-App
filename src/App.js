@@ -52,21 +52,40 @@ const average = (arr) =>
 
 const KEY = "91bc1bfa";
 
+const apiMovies = "vikings";
+
 // this is the main app  component
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchMovie() {
-      setIsLoading(true);
-      const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${KEY}&s=vikings`
-      );
-      const data = await res.json();
-      setMovies(data.Search);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${apiMovies}`
+        );
+        console.log(res);
+
+        if (!res.ok) {
+          throw new Error("something went wrong with the fetchig movies");
+        }
+        const data = await res.json();
+        if (data.Response === "False") {
+          throw new Error(data.Error);
+          // throw new Error("movie not found");
+        }
+
+        setMovies(data.Search);
+      } catch (error) {
+        // console.log(error.message);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchMovie();
   }, []);
@@ -79,7 +98,13 @@ export default function App() {
       </NavBar>
 
       <Main>
-        <Box>{isLoading ? <Loading /> : <MovieList movies={movies} />}</Box>
+        <Box>
+          {isLoading && <Loading />}
+
+          {!isLoading && !error && <MovieList movies={movies} />}
+
+          {error && <ErrorMessage message={error} />}
+        </Box>
 
         <Box>
           <WatchedSummary watched={watched} />
@@ -90,6 +115,14 @@ export default function App() {
   );
 }
 
+function ErrorMessage({ message }) {
+  return (
+    <p className="error">
+      <span>❌</span>
+      {message}
+    </p>
+  );
+}
 //this is the loading component
 
 function Loading() {
