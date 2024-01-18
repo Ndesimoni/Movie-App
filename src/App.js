@@ -56,6 +56,7 @@ const apiMovies = "vikings";
 
 // this is the main app  component
 export default function App() {
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,17 +66,16 @@ export default function App() {
     async function fetchMovie() {
       try {
         setIsLoading(true);
+        setError("");
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${apiMovies}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
         );
-        console.log(res);
-
         if (!res.ok) {
           throw new Error("something went wrong with the fetchig movies");
         }
         const data = await res.json();
         if (data.Response === "False") {
-          throw new Error(data.Error);
+          throw new Error(`❌ movies not found}`);
           // throw new Error("movie not found");
         }
 
@@ -87,13 +87,19 @@ export default function App() {
         setIsLoading(false);
       }
     }
+
+    if (query.length < 2) {
+      setMovies([]);
+      setError(" ");
+      return;
+    }
     fetchMovie();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
 
@@ -116,12 +122,7 @@ export default function App() {
 }
 
 function ErrorMessage({ message }) {
-  return (
-    <p className="error">
-      <span>❌</span>
-      {message}
-    </p>
-  );
+  return <p className="error">{`${message}`}</p>;
 }
 //this is the loading component
 
@@ -154,8 +155,7 @@ function Logo() {
 }
 
 // this is the search input
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
   return (
     <>
       {" "}
