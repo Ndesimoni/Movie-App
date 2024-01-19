@@ -80,39 +80,50 @@ export default function App() {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
 
-  useEffect(() => {
-    async function fetchMovie() {
-      try {
-        setIsLoading(true);
-        setError("");
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-        );
-        if (!res.ok) {
-          throw new Error("something went wrong with the fetchig movies");
-        }
-        const data = await res.json();
-        if (data.Response === "False") {
-          throw new Error(`❌ movies not found}`);
-          // throw new Error("movie not found");
-        }
-        console.log(data.Search);
-        setMovies(data.Search);
-      } catch (error) {
-        // console.log(error.message);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  useEffect(
+    function () {
+      const controller = new AbortController();
 
-    if (query.length < 2) {
-      setMovies([]);
-      setError(" ");
-      return;
-    }
-    fetchMovie();
-  }, [query]);
+      async function fetchMovie() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
+          );
+          if (!res.ok) {
+            throw new Error("something went wrong with the fetchig movies");
+          }
+          const data = await res.json();
+          if (data.Response === "False") {
+            throw new Error(`❌ movies not found}`);
+          }
+          console.log(data.Search);
+          setMovies(data.Search);
+          setError("");
+        } catch (error) {
+          if (error.name !== "aboutError") {
+            console.log(error.message);
+            setError(error.message);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      if (query.length < 2) {
+        setMovies([]);
+        setError(" ");
+        return;
+      }
+      fetchMovie();
+      return function () {
+        controller.abort();
+      };
+    },
+    [query]
+  );
 
   return (
     <>
@@ -226,6 +237,19 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
       getMovieDetails();
     },
     [selectedID]
+  );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `movie | ${title}`;
+
+      return function () {
+        document.title = "usePopcorn";
+      };
+    },
+
+    [title]
   );
 
   return (
